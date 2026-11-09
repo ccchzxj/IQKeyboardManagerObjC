@@ -1,7 +1,7 @@
 //
-//  IQKeyboardManager.h
-//  https://github.com/hackiftekhar/IQKeyboardManager
-//  Copyright (c) 2013-24 Iftekhar Qurashi.
+// IQKeyboardManager.h
+// https://github.com/hackiftekhar/IQKeyboardManager
+// Copyright (c) 2013-16 Iftekhar Qurashi.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <CoreGraphics/CoreGraphics.h>
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import <IQKeyboardManagerConstants.h>
+#import <IQUIView+IQKeyboardToolbar.h>
+#import <IQPreviousNextView.h>
+#import <IQUIViewController+Additions.h>
+#import <IQKeyboardReturnKeyHandler.h>
+#import <IQTextView.h>
+#import <IQToolbar.h>
+#import <IQUIScrollView+Additions.h>
+#import <IQUITextFieldView+Additions.h>
+#import <IQBarButtonItem.h>
+#import <IQTitleBarButtonItem.h>
+#import <IQUIView+Hierarchy.h>
 
-#import <IQKeyboardManagerObjC/IQKeyboardManagerConstants.h>
-#import <IQKeyboardManagerObjC/IQUIView+IQKeyboardToolbar.h>
-#import <IQKeyboardManagerObjC/IQPreviousNextView.h>
-#import <IQKeyboardManagerObjC/IQUIViewController+Additions.h>
-#import <IQKeyboardManagerObjC/IQKeyboardReturnKeyHandler.h>
-#import <IQKeyboardManagerObjC/IQTextView.h>
-#import <IQKeyboardManagerObjC/IQToolbar.h>
-#import <IQKeyboardManagerObjC/IQUIScrollView+Additions.h>
-#import <IQKeyboardManagerObjC/IQUITextFieldView+Additions.h>
-#import <IQKeyboardManagerObjC/IQBarButtonItem.h>
-#import <IQKeyboardManagerObjC/IQTitleBarButtonItem.h>
-#import <IQKeyboardManagerObjC/IQUIView+Hierarchy.h>
+#import <CoreGraphics/CGBase.h>
+
+#import <Foundation/NSObject.h>
+#import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSSet.h>
+
+#import <UIKit/UITextInputTraits.h>
 
 @class UIFont, UIColor, UITapGestureRecognizer, UIView, UIImage;
 
@@ -59,10 +63,8 @@ extern NSInteger const kIQPreviousNextButtonToolbarTag;
 
 
 /**
- Code-less drop-in universal library allows to prevent issues of keyboard sliding up and cover UITextField/UITextView. Neither need to write any code nor any setup required and much more. A generic version of KeyboardManagement. https://developer.apple.com/library/ios/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/KeyboardManagement/KeyboardManagement.html
+ Codeless drop-in universal library allows to prevent issues of keyboard sliding up and cover UITextField/UITextView. Neither need to write any code nor any setup required and much more. A generic version of KeyboardManagement. https://developer.apple.com/library/ios/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/KeyboardManagement/KeyboardManagement.html
  */
-
-NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @interface IQKeyboardManager : NSObject
 
 ///--------------------------
@@ -114,13 +116,13 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @property(nonatomic, assign, getter = isEnableAutoToolbar) BOOL enableAutoToolbar;
 
 /**
- IQAutoToolbarBySubviews:   Creates Toolbar according to subview's hierarchy of Textfield's in view.
+ IQAutoToolbarBySubviews:   Creates Toolbar according to subview's hirarchy of Textfield's in view.
  IQAutoToolbarByTag:        Creates Toolbar according to tag property of TextField's.
  IQAutoToolbarByPosition:   Creates Toolbar according to the y,x position of textField in it's superview coordinate.
 
  Default is IQAutoToolbarBySubviews.
 */
-@property(nonatomic, assign) IQAutoToolbarManageBehavior toolbarManageBehavior;
+@property(nonatomic, assign) IQAutoToolbarManageBehaviour toolbarManageBehaviour;
 
 /**
  If YES, then uses textField's tintColor property for IQToolbar, otherwise tint color is nil. Default is NO.
@@ -290,12 +292,12 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @property(nonatomic, strong, nonnull, readonly) NSMutableSet<Class> *disabledTouchResignedClasses;
 
 /**
- Enabled classes to forcefully enable 'shouldResignOnTouchOutside' property. Class should be kind of UIViewController. Default is [].
+ Enabled classes to forcefully enable 'shouldResignOnTouchOutsite' property. Class should be kind of UIViewController. Default is [].
  */
 @property(nonatomic, strong, nonnull, readonly) NSMutableSet<Class> *enabledTouchResignedClasses;
 
 /**
- if shouldResignOnTouchOutside is enabled then you can customize the behavior to not recognize gesture touches on some specific view subclasses. Class should be kind of UIView. Default is [UIControl, UINavigationBar]
+ if shouldResignOnTouchOutside is enabled then you can customise the behaviour to not recognise gesture touches on some specific view subclasses. Class should be kind of UIView. Default is [UIControl, UINavigationBar]
  */
 @property(nonatomic, strong, nonnull, readonly) NSMutableSet<Class> *touchResignedGestureIgnoreClasses;
 
@@ -315,11 +317,11 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 
 ///-------------------------------------------
 /// @name Third Party Library support
-/// Add TextField/TextView Notifications customized NSNotifications. For example while using YYTextView https://github.com/ibireme/YYText
+/// Add TextField/TextView Notifications customised NSNotifications. For example while using YYTextView https://github.com/ibireme/YYText
 ///-------------------------------------------
 
 /**
- Add/Remove customized Notification for third party customized TextField/TextView. Please be aware that the NSNotification object must be identical to UITextField/UITextView NSNotification objects and customized TextField/TextView support must be identical to UITextField/UITextView.
+ Add/Remove customised Notification for third party customised TextField/TextView. Please be aware that the NSNotification object must be identical to UITextField/UITextView NSNotification objects and customised TextField/TextView support must be identical to UITextField/UITextView.
  @param didBeginEditingNotificationName This should be identical to UITextViewTextDidBeginEditingNotification
  @param didEndEditingNotificationName This should be identical to UITextViewTextDidEndEditingNotification
  */

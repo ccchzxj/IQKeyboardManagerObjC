@@ -1,7 +1,7 @@
 //
-//  IQToolbar.m
-//  https://github.com/hackiftekhar/IQKeyboardManager
-//  Copyright (c) 2013-24 Iftekhar Qurashi.
+// IQToolbar.m
+// https://github.com/hackiftekhar/IQKeyboardManager
+// Copyright (c) 2013-16 Iftekhar Qurashi.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
-
 #import "IQToolbar.h"
 #import "IQKeyboardManagerConstantsInternal.h"
 #import "IQUIView+Hierarchy.h"
 
+#import <UIKit/UIButton.h>
+#import <UIKit/UIToolbarAppearance.h>
+#import <UIKit/UIAccessibility.h>
+#import <UIKit/UIViewController.h>
 
-NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
+@interface IQToolbar ()
+@property (nonatomic, strong) UIView *jm_flatBackgroundView;
+@end
+
 @implementation IQToolbar
 @synthesize previousBarButton = _previousBarButton;
 @synthesize nextBarButton = _nextBarButton;
@@ -52,6 +57,7 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
         [self setBackgroundImage:nil forToolbarPosition:toolbarPosition barMetrics:UIBarMetricsDefault];
         [self setShadowImage:nil forToolbarPosition:toolbarPosition];
     }
+    [self jm_updateFlatAppearance];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -104,6 +110,8 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     if (_titleBarButton == nil)
     {
         _titleBarButton = [[IQTitleBarButtonItem alloc] initWithTitle:nil];
+        _titleBarButton.accessibilityLabel = @"Title";
+        _titleBarButton.accessibilityIdentifier = _titleBarButton.accessibilityLabel;
     }
     
     return _titleBarButton;
@@ -124,10 +132,100 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     if (_fixedSpaceBarButton == nil)
     {
         _fixedSpaceBarButton = [[IQBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-        [_fixedSpaceBarButton setWidth:6];
+        if (@available(iOS 10.0, *))
+        {
+            [_fixedSpaceBarButton setWidth:6];
+        }
+        else
+        {
+            [_fixedSpaceBarButton setWidth:20];
+        }
     }
     
     return _fixedSpaceBarButton;
+}
+
+// Keep IQ's toolbar, items and actions; draw a solid background without shared glass.
+- (void)jm_updateFlatAppearance
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+    if (@available(iOS 26.0, *)) {
+        UIColor *color = self.barTintColor ?: (self.barStyle == UIBarStyleBlack
+            ? [UIColor colorWithWhite:0.12 alpha:1.0] : [UIColor secondarySystemBackgroundColor]);
+        UIToolbarAppearance *appearance = [[UIToolbarAppearance alloc] init];
+        [appearance configureWithTransparentBackground];
+        appearance.backgroundEffect = nil;
+        self.standardAppearance = appearance;
+        self.compactAppearance = appearance;
+        self.scrollEdgeAppearance = appearance;
+        self.compactScrollEdgeAppearance = appearance;
+        self.translucent = NO;
+        self.backgroundColor = UIColor.clearColor;
+        self.opaque = NO;
+
+        if (!_jm_flatBackgroundView) {
+            _jm_flatBackgroundView = [[UIView alloc] initWithFrame:CGRectZero];
+            _jm_flatBackgroundView.userInteractionEnabled = NO;
+            _jm_flatBackgroundView.isAccessibilityElement = NO;
+            _jm_flatBackgroundView.clipsToBounds = YES;
+            _jm_flatBackgroundView.cornerConfiguration = [UICornerConfiguration capsuleConfiguration];
+            [self insertSubview:_jm_flatBackgroundView atIndex:0];
+        }
+        _jm_flatBackgroundView.backgroundColor = color;
+        [self setNeedsLayout];
+    }
+#endif
+}
+
+- (void)jm_layoutFlatBackground
+{
+    if (!_jm_flatBackgroundView) {
+        return;
+    }
+    // Paint only inside the accessory, never behind the system keyboard's rounded edges.
+    UIEdgeInsets insets = self.safeAreaInsets;
+    CGRect frame = self.bounds;
+    frame.origin.x += insets.left;
+    frame.size.width = MAX(0, frame.size.width - insets.left - insets.right);
+    _jm_flatBackgroundView.frame = frame;
+    [self sendSubviewToBack:_jm_flatBackgroundView];
+}
+
+- (void)safeAreaInsetsDidChange
+{
+    [super safeAreaInsetsDidChange];
+    [self setNeedsLayout];
+}
+
+- (void)setBarTintColor:(UIColor *)barTintColor
+{
+    [super setBarTintColor:barTintColor];
+    [self jm_updateFlatAppearance];
+}
+
+- (void)setBarStyle:(UIBarStyle)barStyle
+{
+    [super setBarStyle:barStyle];
+    [self jm_updateFlatAppearance];
+}
+
+- (void)setItems:(NSArray<UIBarButtonItem *> *)items
+{
+    [self setItems:items animated:NO];
+}
+
+- (void)setItems:(NSArray<UIBarButtonItem *> *)items animated:(BOOL)animated
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+    if (@available(iOS 26.0, *)) {
+        for (UIBarButtonItem *item in items) {
+            // Includes the placeholder customView, which otherwise gets an empty glass bubble.
+            item.hidesSharedBackground = YES;
+            item.style = UIBarButtonItemStylePlain;
+        }
+    }
+#endif
+    [super setItems:items animated:animated];
 }
 
 -(CGSize)sizeThatFits:(CGSize)size
@@ -146,6 +244,96 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     for (UIBarButtonItem *item in self.items)
     {
         [item setTintColor:tintColor];
+    }
+}
+
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    [self jm_layoutFlatBackground];
+
+    if (@available(iOS 11.0, *)) {}
+    else {
+        CGRect leftRect = CGRectNull;
+        CGRect rightRect = CGRectNull;
+
+        BOOL isTitleBarButtonFound = NO;
+
+        NSArray<UIView*> *subviews = [self.subviews sortedArrayUsingComparator:^NSComparisonResult(UIView *view1, UIView *view2) {
+
+            CGFloat x1 = CGRectGetMinX(view1.frame);
+            CGFloat y1 = CGRectGetMinY(view1.frame);
+            CGFloat x2 = CGRectGetMinX(view2.frame);
+            CGFloat y2 = CGRectGetMinY(view2.frame);
+
+            if (x1 < x2)  return NSOrderedAscending;
+
+            else if (x1 > x2) return NSOrderedDescending;
+
+            //Else both y are same so checking for x positions
+            else if (y1 < y2)  return NSOrderedAscending;
+
+            else if (y1 > y2) return NSOrderedDescending;
+
+            else    return NSOrderedSame;
+        }];
+
+        for (UIView *barButtonItemView in subviews)
+        {
+            if (isTitleBarButtonFound == YES)
+            {
+                rightRect = barButtonItemView.frame;
+                break;
+            }
+            else if (barButtonItemView == self.titleBarButton.customView)
+            {
+                isTitleBarButtonFound = YES;
+            }
+            //If it's UIToolbarButton or UIToolbarTextButton (which actually UIBarButtonItem)
+            else if ([barButtonItemView isKindOfClass:[UIControl class]])
+            {
+                leftRect = barButtonItemView.frame;
+            }
+        }
+
+        CGFloat titleMargin = 16;
+
+        CGFloat maxWidth = CGRectGetWidth(self.frame) - titleMargin*2 - (CGRectIsNull(leftRect)?0:CGRectGetMaxX(leftRect)) - (CGRectIsNull(rightRect)?0:CGRectGetWidth(self.frame)-CGRectGetMinX(rightRect));
+        CGFloat maxHeight = self.frame.size.height;
+
+        CGSize sizeThatFits = [self.titleBarButton.customView sizeThatFits:CGSizeMake(maxWidth, maxHeight)];
+
+        CGRect titleRect = CGRectZero;
+
+        CGFloat x = titleMargin;
+
+        if (sizeThatFits.width > 0 && sizeThatFits.height > 0)
+        {
+            CGFloat width = MIN(sizeThatFits.width, maxWidth);
+            CGFloat height = MIN(sizeThatFits.height, maxHeight);
+
+            if (CGRectIsNull(leftRect) == false)
+            {
+                x = titleMargin + CGRectGetMaxX(leftRect) + ((maxWidth - width)/2);
+            }
+
+            CGFloat y = (maxHeight - height)/2;
+
+            titleRect = CGRectMake(x, y, width, height);
+        }
+        else
+        {
+            if (CGRectIsNull(leftRect) == false)
+            {
+                x = titleMargin + CGRectGetMaxX(leftRect);
+            }
+
+            CGFloat width = CGRectGetWidth(self.frame) - titleMargin*2 - (CGRectIsNull(leftRect)?0:CGRectGetMaxX(leftRect)) - (CGRectIsNull(rightRect)?0:CGRectGetWidth(self.frame)-CGRectGetMinX(rightRect));
+
+            titleRect = CGRectMake(x, 0, width, maxHeight);
+        }
+
+        self.titleBarButton.customView.frame = titleRect;
     }
 }
 

@@ -1,7 +1,7 @@
 //
-//  IQTitleBarButtonItem.m
-//  https://github.com/hackiftekhar/IQKeyboardManager
-//  Copyright (c) 2013-24 Iftekhar Qurashi.
+// IQTitleBarButtonItem.m
+// https://github.com/hackiftekhar/IQKeyboardManager
+// Copyright (c) 2013-16 Iftekhar Qurashi.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
-
 #import "IQTitleBarButtonItem.h"
 #import "IQKeyboardManagerConstants.h"
 #import "IQKeyboardManagerConstantsInternal.h"
 
+#import <UIKit/UILabel.h>
+#import <UIKit/UIButton.h>
 
-NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @interface IQTitleBarButtonItem ()
 
 @property(nullable, nonatomic, strong) UIView *titleView;
@@ -36,7 +35,6 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 
 @end
 
-NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @implementation IQTitleBarButtonItem
 
 -(nonnull instancetype)initWithTitle:(nullable NSString *)title
@@ -51,11 +49,9 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
         _titleButton.enabled = NO;
         _titleButton.titleLabel.numberOfLines = 3;
         #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-        if (@available(iOS 13.0, *))
-        {
+        if (@available(iOS 13.0, *)) {
             [_titleButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
-        }
-        else
+        } else
         #endif
         {
             [_titleButton setTitleColor:[UIColor colorWithRed:0.0 green:0.5 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
@@ -67,26 +63,34 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
         [self setTitleFont:[UIFont systemFontOfSize:13.0]];
         [_titleView addSubview:_titleButton];
         
-        CGFloat layoutDefaultLowPriority = UILayoutPriorityDefaultLow-1;
-        CGFloat layoutDefaultHighPriority = UILayoutPriorityDefaultHigh-1;
-        
-        _titleView.translatesAutoresizingMaskIntoConstraints = NO;
-        [_titleView setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisVertical];
-        [_titleView setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisHorizontal];
-        [_titleView setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisVertical];
-        [_titleView setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisHorizontal];
-        
-        _titleButton.translatesAutoresizingMaskIntoConstraints = NO;
-        [_titleButton setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisVertical];
-        [_titleButton setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisHorizontal];
-        [_titleButton setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisVertical];
-        [_titleButton setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisHorizontal];
-        
-        NSLayoutConstraint *top = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeTop multiplier:1 constant:0];
-        NSLayoutConstraint *bottom = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeBottom multiplier:1 constant:0];
-        NSLayoutConstraint *leading = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeLeading multiplier:1 constant:0];
-        NSLayoutConstraint *trailing = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
-        [_titleView addConstraints:@[top,bottom, leading, trailing]];
+        if (@available(iOS 11.0, *))
+        {
+            CGFloat layoutDefaultLowPriority = UILayoutPriorityDefaultLow-1;
+            CGFloat layoutDefaultHighPriority = UILayoutPriorityDefaultHigh-1;
+
+            _titleView.translatesAutoresizingMaskIntoConstraints = NO;
+            [_titleView setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisVertical];
+            [_titleView setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisHorizontal];
+            [_titleView setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisVertical];
+            [_titleView setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisHorizontal];
+
+            _titleButton.translatesAutoresizingMaskIntoConstraints = NO;
+            [_titleButton setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisVertical];
+            [_titleButton setContentHuggingPriority:layoutDefaultLowPriority forAxis:UILayoutConstraintAxisHorizontal];
+            [_titleButton setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisVertical];
+            [_titleButton setContentCompressionResistancePriority:layoutDefaultHighPriority forAxis:UILayoutConstraintAxisHorizontal];
+
+            NSLayoutConstraint *top = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeTop multiplier:1 constant:0];
+            NSLayoutConstraint *bottom = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeBottom multiplier:1 constant:0];
+            NSLayoutConstraint *leading = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeLeading multiplier:1 constant:0];
+            NSLayoutConstraint *trailing = [NSLayoutConstraint constraintWithItem:_titleButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_titleView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
+            [_titleView addConstraints:@[top,bottom,leading,trailing]];
+        }
+        else
+        {
+            _titleView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+            _titleButton.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        }
 
         self.customView = _titleView;
     }
@@ -111,7 +115,6 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 {
     [super setTitle:title];
     [_titleButton setTitle:title forState:UIControlStateNormal];
-    [self updateAccessibility];
 }
 
 -(void)setTitleColor:(UIColor*)titleColor
@@ -124,11 +127,9 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 {
     _selectableTitleColor = selectableTitleColor;
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *))
-    {
+    if (@available(iOS 13.0, *)) {
         [_titleButton setTitleColor:_selectableTitleColor?:[UIColor systemBlueColor] forState:UIControlStateNormal];
-    }
-    else
+    } else
     #endif
     {
         [_titleButton setTitleColor:_selectableTitleColor?:[UIColor colorWithRed:0.0 green:0.5 blue:1.0 alpha:1.0] forState:UIControlStateNormal];
@@ -150,25 +151,6 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
         self.enabled = YES;
         _titleButton.enabled = YES;
         [_titleButton addTarget:invocation.target action:invocation.selector forControlEvents:UIControlEventTouchUpInside];
-    }
-}
-
--(void)updateAccessibility
-{
-    if (self.title == nil || self.title.length == 0) 
-    {
-        self.isAccessibilityElement = NO;
-        self.accessibilityTraits = UIAccessibilityTraitNone;
-    }
-    else if (self.titleButton.isEnabled) 
-    {
-        self.isAccessibilityElement = YES;
-        self.accessibilityTraits = UIAccessibilityTraitButton;
-    } 
-    else
-    {
-        self.isAccessibilityElement = YES;
-        self.accessibilityTraits = UIAccessibilityTraitStaticText;
     }
 }
 

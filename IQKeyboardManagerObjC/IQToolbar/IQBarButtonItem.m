@@ -1,7 +1,7 @@
 //
-//  IQBarButtonItem.m
-//  https://github.com/hackiftekhar/IQKeyboardManager
-//  Copyright (c) 2013-24 Iftekhar Qurashi.
+// IQBarButtonItem.m
+// https://github.com/hackiftekhar/IQKeyboardManager
+// Copyright (c) 2013-16 Iftekhar Qurashi.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <UIKit/UIKit.h>
-
 #import "IQBarButtonItem.h"
 #import "IQKeyboardManagerConstantsInternal.h"
+#import <UIKit/NSAttributedString.h>
 
-NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
 @implementation IQBarButtonItem
 
 -(void)initialize
@@ -37,9 +35,9 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     {
         UIControlState controlState = [state unsignedIntegerValue];
 
-        [self setBackgroundImage:[UIImage new] forState:controlState barMetrics:UIBarMetricsDefault];
-        [self setBackgroundImage:[UIImage new] forState:controlState style:UIBarButtonItemStylePlain barMetrics:UIBarMetricsDefault];
-        [self setBackButtonBackgroundImage:[UIImage new] forState:controlState barMetrics:UIBarMetricsDefault];
+        [self setBackgroundImage:nil forState:controlState barMetrics:UIBarMetricsDefault];
+        [self setBackgroundImage:nil forState:controlState style:UIBarButtonItemStylePlain barMetrics:UIBarMetricsDefault];
+        [self setBackButtonBackgroundImage:nil forState:controlState barMetrics:UIBarMetricsDefault];
     }
 
     [self setTitlePositionAdjustment:UIOffsetZero forBarMetrics:UIBarMetricsDefault];
@@ -47,8 +45,8 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     [self setBackButtonBackgroundVerticalPositionAdjustment:0 forBarMetrics:UIBarMetricsDefault];
 }
 
-- (instancetype)init
-{
+- (instancetype)init {
+
     self = [super init];
 
     if (self)
@@ -59,8 +57,8 @@ NS_EXTENSION_UNAVAILABLE_IOS("Unavailable in extension")
     return self;
 }
 
-- (instancetype)initWithCoder:(NSCoder *)coder
-{
+- (instancetype)initWithCoder:(NSCoder *)coder {
+
     self = [super initWithCoder: coder];
 
     if (self)

@@ -1,3 +1,11 @@
+# 当前维护版：Objective-C 工具栏适配
+
+发布版本 `6.5.11-adaptation.1`，最低 iOS 15.0。请先阅读 [INTEGRATION.md](INTEGRATION.md)，使用其中的远端 Pod 声明及迁移步骤。
+
+以下保留原仓库说明；其 Swift 产品、原仓库地址和其它版本信息不代表当前维护版。
+
+---
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/hackiftekhar/IQKeyboardManagerObjC/master/Screenshot/Social.png" alt="Icon"/>
 </p>
